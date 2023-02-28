@@ -20,12 +20,14 @@ public class JsonDocument extends DocumentImpl implements Document {
         JsonParser parser = jsonFactory.createParser(data);
 
         if (parser.nextToken() == JsonToken.START_OBJECT) {
-            root = new JsonObjectNode(this, this, parser.currentTokenLocation(), "json");
+            root = new JsonObjectNode(parser.currentTokenLocation(), "json");
+            root.setParent(this);
 
         } else if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
-            var childNodes = JsonUtil.parseChildren(parser, this, this, "array");
+            var childNodes = JsonUtil.parseChildren(parser, "array");
             JsonUtil.setSiblings(childNodes);
             root = new JsonObjectStrongRefNode(this, "json", childNodes);
+            JsonUtil.setParent(childNodes, root);
         } else {
             throw new IOException("Invalid JSON data");
         }

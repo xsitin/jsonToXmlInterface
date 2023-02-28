@@ -1,7 +1,9 @@
 package org.example.node;
 
+import org.apache.xerces.dom.CoreDocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
-import org.w3c.dom.*;
+import org.apache.xerces.dom.ParentNode;
+import org.w3c.dom.Element;
 
 public abstract class JsonElement extends ElementImpl implements Element {
     public void setNextSibling(JsonElement element) {
@@ -17,5 +19,9 @@ public abstract class JsonElement extends ElementImpl implements Element {
         return 0;
     }
 
+    public void setParent(ParentNode parent) {
+        this.ownerNode = parent;
+        this.ownerDocument = (CoreDocumentImpl) parent.getOwnerDocument();
+    }
 
 }

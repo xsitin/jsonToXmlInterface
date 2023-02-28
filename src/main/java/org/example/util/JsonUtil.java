@@ -1,10 +1,8 @@
 package org.example.util;
 
 import com.fasterxml.jackson.core.*;
-import org.apache.xerces.dom.ChildNode;
-import org.apache.xerces.dom.CoreDocumentImpl;
-import org.apache.xerces.dom.NodeImpl;
 import org.example.node.*;
+import org.w3c.dom.Node;
 
 import java.io.IOException;
 
@@ -34,7 +32,13 @@ public class JsonUtil {
         }
     }
 
-    public static JsonNodeList parseChildren(JsonParser parser, CoreDocumentImpl owner, NodeImpl parent, String defaultName) throws IOException {
+    public static void setParent(JsonNodeList nodes, JsonElement parent) {
+        for (Node node : nodes)
+            ((JsonElement) node).setParent(parent);
+    }
+
+
+    public static JsonNodeList parseChildren(JsonParser parser, String defaultName) throws IOException {
         var children = new JsonNodeList();
         if (parser.currentToken() == null)
             parser.nextToken();
@@ -43,14 +47,15 @@ public class JsonUtil {
         while (parser.nextToken() != null && parser.currentToken() != structureEndToken) {
             var currentToken = parser.currentToken();
             if (currentToken == JsonToken.FIELD_NAME) {
-                children.addAll(parseField(parser, owner, parent, defaultName));
+                children.addAll(parseField(parser, defaultName));
             } else if (currentToken.isScalarValue()) {
-                children.add(parseValue(parser, owner, parent, defaultName));
+                children.add(parseValue(parser, defaultName));
             } else if (currentToken == JsonToken.START_ARRAY) {
-                var arrayElements = parseChildren(parser, owner, parent, "array");
+                var arrayElements = parseChildren(parser, "array");
                 children.addAll(arrayElements);
             } else if (currentToken == JsonToken.START_OBJECT) {
-                children.add(new JsonObjectNode(owner, parent, parser.currentTokenLocation(), defaultName));
+                var childObject = new JsonObjectNode(parser.currentTokenLocation(), defaultName);
+                children.add(childObject);
                 parser.skipChildren();
             }
 
@@ -58,28 +63,28 @@ public class JsonUtil {
         return children;
     }
 
-    private static JsonFieldNode parseValue(JsonParser parser, CoreDocumentImpl owner, NodeImpl parent, String fieldName) throws IOException {
-        var field = new JsonFieldNode(owner, parent, fieldName);
+    private static JsonFieldNode parseValue(JsonParser parser, String fieldName) throws IOException {
+        var field = new JsonFieldNode(fieldName);
         var value = new JsonValue(field, parser.getValueAsString());
         field.setValue(value);
         return field;
     }
 
-    private static JsonNodeList parseField(JsonParser parser, CoreDocumentImpl owner, NodeImpl parent, String defaultName) throws IOException {
+    private static JsonNodeList parseField(JsonParser parser, String defaultName) throws IOException {
         var fields = new JsonNodeList();
         var nodeName = StringUtil.isNullOrBlank(parser.getCurrentName()) ? defaultName : parser.getCurrentName();
         parser.nextToken();
         if (parser.currentToken().isStructStart()) {
-            //todo: parent should be fields, not current parent
-            var values = parseChildren(parser, owner, parent, defaultName);
+            var values = parseChildren(parser, defaultName);
             for (int i = 0; i < values.getLength(); i++) {
-                var field = new JsonFieldNode(owner, parent, nodeName);
-                ChildNode value = (ChildNode) values.item(i);
+                var field = new JsonFieldNode(nodeName);
+                var value = (JsonElement) values.item(i);
                 field.setValue(value);
+                value.setParent(field);
                 fields.add(field);
             }
         } else {
-            fields.add(parseValue(parser, owner, parent, nodeName));
+            fields.add(parseValue(parser, nodeName));
         }
         return fields;
     }

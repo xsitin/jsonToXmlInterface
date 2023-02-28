@@ -3,7 +3,6 @@ package org.example.node;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import org.apache.xerces.dom.ChildNode;
-import org.apache.xerces.dom.CoreDocumentImpl;
 import org.apache.xerces.dom.NodeImpl;
 import org.example.util.JsonUtil;
 import org.w3c.dom.Node;
@@ -16,23 +15,22 @@ public class JsonObjectNode extends JsonElement {
     private SoftReference<JsonNodeList> childNodeListReference = new SoftReference<>(null);
     private final JsonLocation startLocation;
 
-    public JsonObjectNode(CoreDocumentImpl owner, NodeImpl parent, JsonLocation startLocation, String fieldName) {
-        this.ownerDocument = owner;
+    public JsonObjectNode(JsonLocation startLocation, String fieldName) {
         this.startLocation = startLocation;
         this.name = fieldName;
-        this.ownerNode = parent;
-        if (parent != null)
-            flags = (short) (flags | NodeImpl.OWNED);
+        flags = (short) (flags | NodeImpl.OWNED);
     }
+
 
     private JsonNodeList retrieveChildNodes() throws IOException {
         JsonNodeList childrenList;
         try (JsonParser parser = JsonUtil.createParserFromLocation(startLocation)) {
-            childrenList = JsonUtil.parseChildren(parser, ownerDocument, this, "array");
+            childrenList = JsonUtil.parseChildren(parser, "array");
         }
         if (childrenList.size() > 0) {
             this.firstChild = (ChildNode) childrenList.item(0);
             JsonUtil.setSiblings(childrenList);
+            JsonUtil.setParent(childrenList, this);
         }
         childNodeListReference = new SoftReference<>(childrenList);
         return childrenList;
