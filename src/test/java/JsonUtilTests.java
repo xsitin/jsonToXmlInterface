@@ -81,7 +81,7 @@ public class JsonUtilTests {
 
     @Test
     void innerArrayWithValues_correctNodesTree() throws IOException {
-        parser = factory.createParser("{ \"innerArray\" : [ [ 1 ], [ 2 ] ] }");
+        parser = factory.createParser("{ \"innerArray\" : [ [ 1 ], [ 2 ] ] }".getBytes());
 
         var children = JsonUtil.parseChildren(parser, "array");
 
@@ -98,6 +98,17 @@ public class JsonUtilTests {
             assertTrue(value instanceof JsonValue);
             assertEquals(Integer.toString(i + 1), value.getTextContent());
         }
+    }
+
+    @Test
+    void innerObjectInArray_correctNodesTree() throws IOException {
+        parser = factory.createParser("[ { \"someKey\" : 123 } ]".getBytes());
+
+        var children = JsonUtil.parseChildren(parser, "array");
+
+        assertEquals(1, children.getLength());
+        assertEquals("array", children.get(0).getNodeName());
+        assertEquals("someKey", children.get(0).getFirstChild().getNodeName());
     }
 
 }

@@ -9,12 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonObjectNodeTests {
 
-    private JsonParser parser;
     private final JsonFactory factory = new JsonFactory();
 
     @Test
     void simpleTree_beCorrect() throws IOException {
-        parser = factory.createParser("{\"objectField\": {\"field\": \"value\"}}".getBytes());
+        JsonParser parser = factory.createParser("{\"objectField\": {\"field\": \"value\"}}".getBytes());
 
         var obj = new JsonObjectNode(parser.currentTokenLocation(), "json");
 
@@ -22,6 +21,7 @@ public class JsonObjectNodeTests {
         var objectField = obj.getFirstChild();
         assertEquals("objectField", objectField.getNodeName());
         assertEquals(obj, objectField.getParentNode());
+        assertEquals(objectField, obj.getLastChild());
         var field = objectField.getFirstChild();
         assertEquals(objectField, field.getParentNode());
         assertEquals(field, field.getFirstChild().getParentNode());

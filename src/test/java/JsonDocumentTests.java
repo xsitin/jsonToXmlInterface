@@ -2,7 +2,9 @@ import org.apache.xerces.dom.DeepNodeListImpl;
 import org.example.node.JsonDocument;
 import org.example.node.JsonElement;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 
@@ -34,7 +36,6 @@ class JsonDocumentTests {
 
         //when
         var nodeList = jsonDocument.getElementsByTagName("json");
-
         //then
         assertTrue(nodeList instanceof DeepNodeListImpl);
         assertEquals(nodeList.getLength(), 2);
@@ -107,6 +108,18 @@ class JsonDocumentTests {
 
         //then
         assertTrue(hasChildNodes);
+    }
+
+    @Test
+    void startsFromArray() throws IOException {
+        //given
+        jsonDocument = new JsonDocument("[ 1, 2, 3 ]".getBytes());
+
+        //when
+        int childCount = jsonDocument.getChildNodes().getLength();
+
+        //then
+        assertEquals(3, childCount);
     }
 
 }

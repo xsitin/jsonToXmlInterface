@@ -1,5 +1,6 @@
 package org.example.node;
 
+import org.apache.xerces.dom.ChildNode;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -11,6 +12,9 @@ public class JsonObjectStrongRefNode extends JsonElement {
         this.ownerDocument = owner;
         this.name = fieldName;
         childNodeList = nodes;
+        if (childNodeList.getLength() > 0)
+            firstChild = (ChildNode) childNodeList.item(0);
+
     }
 
 
@@ -34,5 +38,4 @@ public class JsonObjectStrongRefNode extends JsonElement {
     public Node getLastChild() {
         return childNodeList.getLength() > 0 ? childNodeList.item(childNodeList.getLength() - 1) : null;
     }
-
 }
