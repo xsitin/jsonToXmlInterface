@@ -65,8 +65,11 @@ public class JsonUtil {
 
     private static JsonFieldNode parseValue(JsonParser parser, String fieldName) throws IOException {
         var field = new JsonFieldNode(fieldName);
-        var value = new JsonValue(field, parser.getValueAsString());
-        field.setValue(value);
+        var value = parser.getValueAsString();
+        if (value == null)
+            value = "null";
+        var valueNode = new JsonValue(field, value);
+        field.setValue(valueNode);
         return field;
     }
 

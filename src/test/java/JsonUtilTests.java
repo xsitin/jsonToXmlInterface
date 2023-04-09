@@ -111,4 +111,13 @@ public class JsonUtilTests {
         assertEquals("someKey", children.get(0).getFirstChild().getNodeName());
     }
 
+    @Test
+    void nullValue_correctFieldNode() throws IOException {
+        parser = factory.createParser("{ \"someKey\" : null }".getBytes());
+
+        var children = JsonUtil.parseChildren(parser, "json");
+
+        assertEquals("null", children.get(0).getFirstChild().getNodeValue());
+    }
+
 }
