@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class JsonUtil {
     public static JsonFactory factory;
+    private static final JsonToken[] jsonTokenValues = JsonToken.values();
 
     public static JsonParser createParserFromLocation(JsonLocation location) throws IOException {
         if (factory == null) factory = new JsonFactory();
@@ -43,7 +44,7 @@ public class JsonUtil {
         if (parser.currentToken() == null)
             parser.nextToken();
         if (!parser.currentToken().isStructStart()) throw new JsonParseException(parser, "Should be struct start");
-        var structureEndToken = JsonToken.values()[parser.currentToken().ordinal() + 1];
+        var structureEndToken = jsonTokenValues[parser.currentToken().ordinal() + 1];
         while (parser.nextToken() != null && parser.currentToken() != structureEndToken) {
             var currentToken = parser.currentToken();
             if (currentToken == JsonToken.FIELD_NAME) {
@@ -65,7 +66,7 @@ public class JsonUtil {
 
     private static JsonFieldNode parseValue(JsonParser parser, String fieldName) throws IOException {
         var field = new JsonFieldNode(fieldName);
-        var value = parser.getValueAsString();
+        var value = parser.getText();
         if (value == null)
             value = "null";
         var valueNode = new JsonValue(field, value);
@@ -78,13 +79,18 @@ public class JsonUtil {
         var nodeName = StringUtil.isNullOrBlank(parser.getCurrentName()) ? defaultName : parser.getCurrentName();
         parser.nextToken();
         if (parser.currentToken().isStructStart()) {
-            var values = parseChildren(parser, defaultName);
-            for (int i = 0; i < values.getLength(); i++) {
-                var field = new JsonFieldNode(nodeName);
-                var value = (JsonElement) values.item(i);
-                field.setValue(value);
-                value.setParent(field);
-                fields.add(field);
+            if (parser.currentToken() == JsonToken.START_OBJECT) {
+                fields.add(new JsonObjectNode(parser.currentTokenLocation(), nodeName));
+                parser.skipChildren();
+            } else {
+                var values = parseChildren(parser, defaultName);
+                for (int i = 0; i < values.getLength(); i++) {
+                    var field = new JsonFieldNode(nodeName);
+                    var value = (JsonElement) values.item(i);
+                    field.setValue(value);
+                    value.setParent(field);
+                    fields.add(field);
+                }
             }
         } else {
             fields.add(parseValue(parser, nodeName));

@@ -7,9 +7,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -32,9 +30,8 @@ public class Main {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(2));
 
-            var swr = new StringWriter();
-            transformer.transform(new DOMSource(doc), new StreamResult(swr));
-            System.out.println(swr);
+            var result = new StreamResult(new PrintWriter(System.out));
+            transformer.transform(new DOMSource(doc), result);
         } catch (IOException | TransformerException e) {
             throw new RuntimeException(e);
         }

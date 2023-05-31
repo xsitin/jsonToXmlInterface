@@ -46,7 +46,7 @@ public class JsonUtilTests {
 
         var children = JsonUtil.parseChildren(parser, "array");
 
-        assertEquals(0, children.getLength());
+        assertEquals(1, children.getLength());
     }
 
     @Test
