@@ -2,7 +2,6 @@ package org.example.node;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
-import org.apache.xerces.dom.ChildNode;
 import org.apache.xerces.dom.NodeImpl;
 import org.example.util.JsonUtil;
 import org.w3c.dom.Node;
@@ -28,7 +27,6 @@ public class JsonObjectNode extends JsonElement {
             childrenList = JsonUtil.parseChildren(parser, "array");
         }
         if (childrenList.size() > 0) {
-            this.firstChild = (ChildNode) childrenList.item(0);
             JsonUtil.setSiblings(childrenList);
             JsonUtil.setParent(childrenList, this);
         }

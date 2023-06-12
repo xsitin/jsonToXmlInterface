@@ -1,1 +1,8 @@
-{"arr" : { } }
+{
+  "documentId": "4716418e-3ac5-400b-9adc-73c2c5cecd24",
+  "sometag": {
+        "userId": "1",
+        "userId": "2",
+        "userId": "3"
+  }
+}
